@@ -1,0 +1,91 @@
+buildscript {
+	ext {
+		springBootVersion = '2.1.0.RC1'
+	}
+	repositories {
+		mavenCentral()
+		maven { url "https://repo.spring.io/snapshot" }
+		maven { url "https://repo.spring.io/milestone" }
+	}
+	dependencies {
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath 'com.google.protobuf:protobuf-gradle-plugin:0.8.6'
+	}
+}
+
+plugins {
+  id "com.google.protobuf" version "0.8.6"  
+}
+
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply plugin: 'com.google.protobuf'
+
+group = 'org.rahul'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+	mavenCentral()
+	maven { url "https://repo.spring.io/snapshot" }
+	maven { url "https://repo.spring.io/milestone" }
+}
+
+
+dependencies {
+
+	compile 'io.grpc:grpc-netty-shaded:1.16.1'
+	compile 'io.grpc:grpc-protobuf:1.16.1'
+	compile 'io.grpc:grpc-stub:1.16.1'
+
+	// https://mvnrepository.com/artifact/com.google.protobuf/protoc
+	compile group: 'com.google.protobuf', name: 'protoc', version: '3.6.1', ext: 'pom'
+	// https://mvnrepository.com/artifact/io.grpc/protoc-gen-grpc-java
+	compile group: 'io.grpc', name: 'protoc-gen-grpc-java', version: '1.16.1', ext: 'pom'
+	
+	//Self
+	//compile project(':sb-grpc-svc1')
+	
+	
+	implementation('org.springframework.boot:spring-boot-starter-web')
+	testImplementation('org.springframework.boot:spring-boot-starter-test')
+}
+
+sourceSets {
+    main {
+        java {
+            srcDir 'src/main/protoGen'
+        }
+    }
+}
+
+protobuf {
+	//Already defined in dependency
+    protoc {
+        artifact = 'com.google.protobuf:protoc:3.6.1'
+    }
+    
+    //Already defined in dependency
+    plugins {
+        grpc {
+            artifact = "io.grpc:protoc-gen-grpc-java:1.16.1"
+        }
+    }
+
+    generateProtoTasks {
+        all()*.plugins {
+        	grpc {}
+   	 	}
+    }
+    generatedFilesBaseDir = "$projectDir/protoGen2"
+}
+
+task cleanProtoGen{
+    doFirst{
+           delete("$projectDir/protoGen2")
+    }
+}
+clean.dependsOn cleanProtoGen
+//bootRepackage.enabled  =false

@@ -2,12 +2,12 @@
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
+### Java ###
+*.class
+
 ### STS ###
 .apt_generated
-.classpath
 .factorypath
-.project
-.settings
 .springBeans
 .sts4-cache
 
